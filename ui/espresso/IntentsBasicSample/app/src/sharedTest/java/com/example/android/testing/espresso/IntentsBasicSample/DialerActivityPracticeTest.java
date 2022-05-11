@@ -5,8 +5,10 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.init;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.intent.Intents.release;
 import static androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasShortClassName;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
@@ -22,11 +24,12 @@ import android.app.Instrumentation;
 import android.content.Intent;
 import android.net.Uri;
 
-import androidx.test.espresso.intent.rule.IntentsTestRule;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,27 +45,39 @@ public class DialerActivityPracticeTest {
       GrantPermissionRule.grant("android.permission.CALL_PHONE");
 
   @Rule
-  public IntentsTestRule<DialerActivity> testRule = new IntentsTestRule<>(DialerActivity.class);
+  public ActivityScenarioRule<DialerActivity> testRule =
+      new ActivityScenarioRule<>(DialerActivity.class);
+
+  @Before
+  public void setupIntents() {
+    // Initializes intents and begins recording intents, must be called before
+    // triggering any actions that call an intent that we want to verify with validation or stubbing
+    init();
+
+    /* Espresso does not stub any intents, with below method all external intents would be stubbed */
+    intending(not(isInternal()))
+        .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+  }
+
+  @After
+  public void teardownIntents() {
+    // Clears intent state, must be called after each test case
+    release();
+  }
 
   /** Test to enter a phone number and make a call and verify an intent is launched */
   @Test
   public void whenTapOnCallNumber_ThenOutgoingCallIsMade() {
     // Type a phone no and close keyboard
     Uri phoneNumber = Uri.parse("tel:" + VALID_PHONE_NUMBER);
-    onView(withId(R.id.edit_text_caller_number)).perform(typeText(VALID_PHONE_NUMBER), closeSoftKeyboard());
+    onView(withId(R.id.edit_text_caller_number))
+        .perform(typeText(VALID_PHONE_NUMBER), closeSoftKeyboard());
 
     // Tap on call number button
     onView(withId(R.id.button_call_number)).perform(click());
 
     // Verify an intent is called with action and phone no and package
     intended(allOf(hasAction(Intent.ACTION_CALL), hasData(phoneNumber)));
-  }
-
-  /** Espresso does not stub any intents, with below method all external intents would be stubbed */
-  @Before
-  public void stubAllExternalIntents() {
-    intending(not(isInternal()))
-        .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
   }
 
   @Test
