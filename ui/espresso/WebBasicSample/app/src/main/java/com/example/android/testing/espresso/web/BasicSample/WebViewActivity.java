@@ -16,10 +16,14 @@
 
 package com.example.android.testing.espresso.web.BasicSample;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.webkit.WebView;
@@ -41,11 +45,20 @@ public class WebViewActivity extends Activity {
 
     private WebView mWebView;
 
+    // setWebContentsDebuggingEnabled requires KITKAT version+, thus adding @RequiresApi annotation
+    // Also suppressing warning about enabling Javascript execution that can cause XSS vulnerabilities
+    @SuppressLint("SetJavaScriptEnabled")
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
         mWebView = (WebView) findViewById(R.id.web_view);
+
+        // Enables chrome remote debugging:
+        // https://stackoverflow.com/questions/21903934/how-to-debug-webview-remotely
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
+
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.loadUrl(urlFromIntent(getIntent()));
         mWebView.requestFocus();
