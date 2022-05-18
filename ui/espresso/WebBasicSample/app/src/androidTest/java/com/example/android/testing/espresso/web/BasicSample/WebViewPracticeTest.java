@@ -10,11 +10,9 @@ import static androidx.test.espresso.web.webdriver.DriverAtoms.webClick;
 import static androidx.test.espresso.web.webdriver.DriverAtoms.webKeys;
 import static org.hamcrest.Matchers.containsString;
 
-import android.content.Intent;
-
 import androidx.test.espresso.web.webdriver.Locator;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,32 +21,14 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class WebViewPracticeTest {
-
-
-    /**
-     * Creates a test rule. Enables JS on the web view to enable espresso to drive the mobile WebView
-     */
+    // Launch activity with ActivityScenarioRule
     @Rule
-    public ActivityTestRule<WebViewActivity> mTestRule = new ActivityTestRule<WebViewActivity>(WebViewActivity.class, false, false) {
-        @Override
-        protected void afterActivityLaunched() {
-            onWebView().forceJavascriptEnabled();
-        }
-    };
+    public ActivityScenarioRule<WebViewActivity> mActivityScenarioRule = new ActivityScenarioRule<>(WebViewActivity.class);
 
-    /**
-     * We launch our activity with an intent that has the URL and the form that we
-     * want to load
-     */
     @Before
-    public void launchActivity() {
-        mTestRule.launchActivity(withWebFormIntent());
-    }
-
-    public Intent withWebFormIntent() {
-        Intent basicFormIntent = new Intent();
-        basicFormIntent.putExtra(WebViewActivity.KEY_URL_TO_LOAD, WebViewActivity.WEB_FORM_URL);
-        return basicFormIntent;
+    public void enableJSOnWebView() {
+        // We enable Javascript execution on the webview
+        onWebView().forceJavascriptEnabled();
     }
 
     @Test
