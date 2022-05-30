@@ -25,6 +25,20 @@ public class RecyclerViewSamplePracticeTest {
   @Rule
   public ActivityScenarioRule activityScenarioRule = new ActivityScenarioRule<>(MainActivity.class);
 
+  private static TypeSafeMatcher<CustomAdapter.ViewHolder> isInTheMiddle() {
+    return new TypeSafeMatcher<CustomAdapter.ViewHolder>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("item in the middle");
+      }
+
+      @Override
+      protected boolean matchesSafely(CustomAdapter.ViewHolder viewHolder) {
+        return viewHolder.getIsInTheMiddle();
+      }
+    };
+  }
+
   /**
    * This is a negative test that tries to scroll to a descendant that does not exist in the app We
    * use Junit @Test annotation to verify that this test throws a PerformException
@@ -60,19 +74,5 @@ public class RecyclerViewSamplePracticeTest {
     onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollToHolder(isInTheMiddle()));
 
     onView(withText("This is the middle!")).check(matches(isDisplayed()));
-  }
-
-  private static TypeSafeMatcher<CustomAdapter.ViewHolder> isInTheMiddle() {
-    return new TypeSafeMatcher<CustomAdapter.ViewHolder>() {
-      @Override
-      public void describeTo(Description description) {
-        description.appendText("item in the middle");
-      }
-
-      @Override
-      protected boolean matchesSafely(CustomAdapter.ViewHolder viewHolder) {
-        return viewHolder.getIsInTheMiddle();
-      }
-    };
   }
 }
