@@ -66,7 +66,7 @@ public class LongListActivityTest {
 
     /**
      * Use {@link ActivityScenarioRule} to create and launch the activity under test. This is a
-     * replacement for {@link androidx.test.rule.ActivityTestRule}.
+     * replacement for ActivityTestRule.
      */
     @Rule
     public ActivityScenarioRule<LongListActivity> rule = new ActivityScenarioRule<>(
